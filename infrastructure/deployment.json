@@ -32,7 +32,7 @@
         },
         "WebsiteName": {
             "type": "string",
-            "defaultValue": "[guid(resourceGroup().id)]",
+            "defaultValue": "",
             "metadata": {
                 "description": "Name of Web App"
             }
@@ -58,13 +58,6 @@
                 "description": "Name of Azure Search Index"
             }
         },
-        "AzureSearchKey": {
-            "type": "securestring",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Azure Search Admin Key"
-            }
-        },
         "AzureSearchUseSemanticSearch": {
             "type": "bool",
             "defaultValue": false,
@@ -81,7 +74,7 @@
         },
         "AzureSearchIndexIsPrechunked": {
             "type": "bool",
-            "defaultValue": false,
+            "defaultValue": true,
             "metadata": {
                 "description": "Is the index prechunked"
             }
@@ -136,6 +129,7 @@
         },
         "AzureOpenAIModel": {
             "type": "string",
+            "defaultValue": "gpt-35-turbo",
             "metadata": {
                 "description": "Azure OpenAI Model Deployment Name"
             }
@@ -145,12 +139,6 @@
             "defaultValue": "gpt-35-turbo",
             "metadata": {
                 "description": "Azure OpenAI Model Name"
-            }
-        },
-        "AzureOpenAIKey": {
-            "type": "securestring",
-            "metadata": {
-                "description": "Azure OpenAI Key"
             }
         },
         "AzureOpenAITemperature": {
@@ -197,7 +185,7 @@
         },
         "AzureSearchQueryType": {
             "type": "string",
-            "defaultValue": "simple",
+            "defaultValue": "vector",
             "allowedValues": [
                 "simple",
                 "semantic",
@@ -239,14 +227,14 @@
         },
         "AzureOpenAIEmbeddingName": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "text-embedding-ada-002",
             "metadata": {
                 "description": "Azure OpenAI Embedding Deployment Name"
             }
         },
         "WebAppEnableChatHistory": {
             "type": "bool",
-            "defaultValue": false,
+            "defaultValue": true,
             "metadata": {
                 "description": "Enable chat history by deploying a Cosmos DB instance"
             }
@@ -355,7 +343,7 @@
         "cosmosdb_account_name": "[format('db-{0}', parameters('WebsiteName'))]",
         "cosmosdb_database_name": "db_conversation_history",
         "cosmosdb_container_name": "conversations",
-        "roleDefinitionId": "00000000-0000-0000-0000-000000000002", // Cosmos DB Built-in Data Contributor Role
+        "roleDefinitionId": "00000000-0000-0000-0000-000000000002",
         "roleAssignmentId": "[guid(variables('roleDefinitionId'), parameters('WebsiteName'), resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosdb_account_name')))]"
     },
     "resources": [
@@ -401,10 +389,6 @@
                             "value": "[parameters('AzureSearchIndex')]"
                         },
                         {
-                            "name": "AZURE_SEARCH_KEY",
-                            "value": "[parameters('AzureSearchKey')]"
-                        },
-                        {
                             "name": "AZURE_SEARCH_USE_SEMANTIC_SEARCH",
                             "value": "[parameters('AzureSearchUseSemanticSearch')]"
                         },
@@ -447,10 +431,6 @@
                         {
                             "name": "AZURE_OPENAI_MODEL",
                             "value": "[parameters('AzureOpenAIModel')]"
-                        },
-                        {
-                            "name": "AZURE_OPENAI_KEY",
-                            "value": "[parameters('AzureOpenAIKey')]"
                         },
                         {
                             "name": "AZURE_OPENAI_MODEL_NAME",
@@ -605,6 +585,7 @@
                 "consistencyPolicy": {
                     "defaultConsistencyLevel": "Session"
                 },
+                "disableLocalAuth": true,
                 "locations": [
                     {
                         "locationName": "[resourceGroup().location]",
